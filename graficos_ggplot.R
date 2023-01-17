@@ -36,7 +36,8 @@ mediana_data %>%
   ggplot() +
     geom_line(aes(x =  DATA_COLETA_METADADOS, y = mediaValor,
                   group = UF, color = UF), size = 1) + 
-  ggtitle('Média de Valor')+ xlab('Data') + ylab('Meida do valor')
+    ggtitle('Média de Valor') + xlab('Data') + ylab('Meida do valor') +
+    scale_color_brewer(palette = 'Dark2')
 
 
 # variacao de valores por uf
@@ -44,14 +45,16 @@ mediana_data %>%
 dados_select %>%
 ggplot() +
   geom_boxplot(aes(x = UF, y = VALOR, fill = UF)) +
-  ggtitle("Variação de preço por UF")
+  ggtitle("Variação de preço por UF") +
+  scale_fill_brewer(palette = 'Dark2')
 
 # Variacao de Km, valor e UF
 dados_select %>%
   ggplot() + 
   geom_point(aes(x = QUILOMETRAGEM, y = VALOR, color = UF)) +
   ggtitle("Distribuição do valor e KM por UF") + xlab('Quilometragem') + 
-  ylab('Valor')
+  ylab('Valor') +
+  scale_color_brewer(palette = 'Dark2')
 
 # Frequencia dos cambio dos automaveis
 # grafico de barras vertical ou horizontal e pizza
@@ -68,14 +71,16 @@ freq_cambio %>%
   theme_void() + theme(legend.position = 'none') + 
   geom_text(aes(y = ypos, label = paste(CÂMBIO, '\n', round(prop, 2), '%')),
             color ='white', size = 6) +
-  ggtitle('Quantidade por Câmbio')
+  ggtitle('Quantidade por Câmbio') +
+  scale_fill_brewer(palette = 'Dark2')
 
 # Variacao de preco e valor por tipo de anuncio
 dados_select %>%
   ggplot(aes(x = TIPO_ANUNCIO, y = VALOR, fill = UF)) +
   geom_boxplot()+
   ggtitle('Variação do Preço por Tipo de Anúncio') +
-  xlab('Tipo de Anúncio') + ylab('Valor')
+  xlab('Tipo de Anúncio') + ylab('Valor') +
+  scale_fill_brewer(palette = 'Dark2')
 
 # Frequencia pro direcao (hidraulica, eletrica, macanica, etc)
 freq_direcao = dados_select %>%
@@ -91,12 +96,15 @@ freq_direcao %>%
   theme_void() + theme(legend.position = 'none') + 
   geom_text(aes(y = ypos, label = paste(DIREÇÃO, '\n', round(propo, 2), '%')),
             color ='white', size = 5) +
-  ggtitle('Quantidade por Direção')
+  ggtitle('Quantidade por Direção') +
+  scale_fill_brewer(palette = 'Dark2')
 
 #Frequecia por cor
 dados_select %>%
   group_by(COR) %>%
   summarise(QTD = n()) %>%
   ggplot() + 
-    geom_bar(aes(x = reorder(COR, QTD), y = QTD), stat =  'identity') +
-    xlab('Cor') + ylab("Quantidade") + ggtitle('Quantidade por Cor')
+    geom_bar(aes(x = reorder(COR, QTD), y = QTD, fill = QTD), 
+             stat =  'identity') +
+    xlab('Cor') + ylab("Quantidade") + ggtitle('Quantidade por Cor') +
+  theme(legend.position = 'none')
