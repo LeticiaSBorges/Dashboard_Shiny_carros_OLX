@@ -25,6 +25,7 @@ uf = c('mt', 'se')
 
 dados_select = dados %>% filter(MODELO == modelo & UF %in% uf)
 
+theme_set(theme_bw())
 
 #valor medio ao logo do tempo
 mediana_data = dados_select %>%
@@ -35,7 +36,8 @@ mediana_data %>%
   ggplot() +
     geom_line(aes(x =  DATA_COLETA_METADADOS, y = mediaValor,
                   group = UF, color = UF), size = 1) + 
-  ggtitle('Média de Valor')
+  ggtitle('Média de Valor')+ xlab('Data') + ylab('Meida do valor')
+
 
 # variacao de valores por uf
 # valor minimo, maximo, media, mediana, variacao(amplitude) e outline
@@ -48,7 +50,8 @@ ggplot() +
 dados_select %>%
   ggplot() + 
   geom_point(aes(x = QUILOMETRAGEM, y = VALOR, color = UF)) +
-  ggtitle("Distribuição do valor e KM por UF")
+  ggtitle("Distribuição do valor e KM por UF") + xlab('Quilometragem') + 
+  ylab('Valor')
 
 # Frequencia dos cambio dos automaveis
 # grafico de barras vertical ou horizontal e pizza
@@ -68,7 +71,27 @@ freq_cambio %>%
   ggtitle('Quantidade por Câmbio')
 
 # Variacao de preco e valor por tipo de anuncio
+dados_select %>%
+  ggplot(aes(x = TIPO_ANUNCIO, y = VALOR, fill = UF)) +
+  geom_boxplot()+
+  ggtitle('Variação do Preço por Tipo de Anúncio') +
+  xlab('Tipo de Anúncio') + ylab('Valor')
+
 # Frequencia pro direcao (hidraulica, eletrica, macanica, etc)
+freq_direcao = dados_select %>%
+  group_by(DIREÇÃO) %>%
+  summarise(qtdd = n())%>%
+  mutate(propo = qtdd / sum(qtdd) * 100) %>%
+  mutate(ypos = cumsum(propo) - 0.5 * propo)
+
+freq_direcao %>%
+  ggplot(aes(x = '', y = propo, fill = DIREÇÃO)) +
+  geom_bar(stat = 'identity' ) +
+  coord_polar('y', start = 0) +
+  theme_void() + theme(legend.position = 'none') + 
+  geom_text(aes(y = ypos, label = paste(DIREÇÃO, '\n', round(propo, 2), '%')),
+            color ='white', size = 5) +
+  ggtitle('Quantidade por Direção')
 
 #Frequecia por cor
 dados_select %>%
