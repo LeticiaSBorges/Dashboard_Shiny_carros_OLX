@@ -3,6 +3,7 @@
 ### pacotes utilizados
 library(dplyr)
 library(ggplot2)
+library(plotly)
 
 ### Leitura de dados
 dados = read.csv("dados_shiny_2022081822.csv", sep = ",", dec = ".", 
@@ -32,29 +33,36 @@ mediana_data = dados_select %>%
   group_by(DATA_COLETA_METADADOS, UF) %>%
   summarise(mediaValor = median(VALOR))
 
-mediana_data %>% 
-  ggplot() +
-    geom_line(aes(x =  DATA_COLETA_METADADOS, y = mediaValor,
-                  group = UF, color = UF), size = 1) + 
-    ggtitle('Média de Valor') + xlab('Data') + ylab('Meida do valor') +
-    scale_color_brewer(palette = 'Dark2')
-
+ggplotly(
+  mediana_data %>% 
+    ggplot() +
+      geom_line(aes(x =  DATA_COLETA_METADADOS, y = mediaValor,
+                    group = UF, color = UF),
+                size = 1) + 
+      ggtitle('Média de Valor') + xlab('Data') + ylab('Meida do valor') +
+      scale_color_brewer(palette = 'Dark2')
+)
 
 # variacao de valores por uf
 # valor minimo, maximo, media, mediana, variacao(amplitude) e outline
-dados_select %>%
-ggplot() +
-  geom_boxplot(aes(x = UF, y = VALOR, fill = UF)) +
-  ggtitle("Variação de preço por UF") +
-  scale_fill_brewer(palette = 'Dark2')
+ggplotly(
+ dados_select %>%
+    ggplot() +
+    geom_boxplot(aes(x = UF, y = VALOR, fill = UF)) +
+    ggtitle("Variação de preço por UF") +
+   theme(legend.position = 'none') +
+    scale_fill_brewer(palette = 'Dark2')
+)
 
 # Variacao de Km, valor e UF
-dados_select %>%
-  ggplot() + 
-  geom_point(aes(x = QUILOMETRAGEM, y = VALOR, color = UF)) +
-  ggtitle("Distribuição do valor e KM por UF") + xlab('Quilometragem') + 
-  ylab('Valor') +
-  scale_color_brewer(palette = 'Dark2')
+ggplotly(
+  dados_select %>%
+    ggplot() + 
+    geom_point(aes(x = QUILOMETRAGEM, y = VALOR, color = UF)) +
+    ggtitle("Distribuição do valor e KM por UF") + xlab('Quilometragem') + 
+    ylab('Valor') +
+    scale_color_brewer(palette = 'Dark2')
+)
 
 # Frequencia dos cambio dos automaveis
 # grafico de barras vertical ou horizontal e pizza
@@ -74,13 +82,23 @@ freq_cambio %>%
   ggtitle('Quantidade por Câmbio') +
   scale_fill_brewer(palette = 'Dark2')
 
+plot_ly(freq_cambio, labels = ~CÂMBIO, values = ~prop, type = 'pie', 
+        textinfo = 'label+percent', showlegend = FALSE) %>%
+  layout(title= 'Quantidade por Câmbio')
+
+
 # Variacao de preco e valor por tipo de anuncio
-dados_select %>%
-  ggplot(aes(x = TIPO_ANUNCIO, y = VALOR, fill = UF)) +
-  geom_boxplot()+
-  ggtitle('Variação do Preço por Tipo de Anúncio') +
-  xlab('Tipo de Anúncio') + ylab('Valor') +
-  scale_fill_brewer(palette = 'Dark2')
+ggplotly(
+  dados_select %>%
+    ggplot(aes(x = TIPO_ANUNCIO, y = VALOR, fill = UF)) +
+    geom_boxplot()+
+    ggtitle('Variação do Preço por Tipo de Anúncio') +
+    xlab('Tipo de Anúncio') + ylab('Valor') +
+    scale_fill_brewer(palette = 'Dark2')
+) %>% layout(boxmode = 'group')
+##boxmode foi utilizado para desagrupar os boxplot que ficaram um em cima do 
+## quando colocado em ggplotly
+
 
 # Frequencia pro direcao (hidraulica, eletrica, macanica, etc)
 freq_direcao = dados_select %>%
@@ -99,12 +117,22 @@ freq_direcao %>%
   ggtitle('Quantidade por Direção') +
   scale_fill_brewer(palette = 'Dark2')
 
+plot_ly(freq_direcao, labels = ~DIREÇÃO, values = ~propo, type = 'pie', 
+        textinfo = 'label+percent', showlegend = FALSE) %>%
+  layout(title= 'Quantidade por Direção')
+
+
 #Frequecia por cor
-dados_select %>%
-  group_by(COR) %>%
-  summarise(QTD = n()) %>%
-  ggplot() + 
-    geom_bar(aes(x = reorder(COR, QTD), y = QTD, fill = QTD), 
-             stat =  'identity') +
-    xlab('Cor') + ylab("Quantidade") + ggtitle('Quantidade por Cor') +
-  theme(legend.position = 'none')
+ggplotly(  
+  dados_select %>%
+    group_by(COR) %>%
+    summarise(QTD = n()) %>%
+    ggplot() + 
+      geom_bar(aes(x = reorder(COR, QTD), y = QTD, fill = QTD,
+                   text = paste("Cor:", COR,"\n", "Qtd.:", QTD)
+                   ), 
+               stat =  'identity') +
+      xlab('Cor') + ylab("Quantidade") + ggtitle('Quantidade por Cor') +
+    theme(legend.position = 'none'),
+  tooltip = c('text')
+)
